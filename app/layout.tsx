@@ -63,6 +63,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
               </div>
               <nav className="ml-auto text-sm font-medium space-x-6">
                 <Link href="/">Home</Link>
+                <Link href="/bitacora/">List</Link>
                 <Link href="/about">About</Link>
                 <Link href="/protected">Login</Link>
               </nav>
