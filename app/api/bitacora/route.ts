@@ -13,6 +13,7 @@ export async function GET(request: Request, response: Response) {
         select: { bita_events: true },
       },
     },
+    take: 15,
   });
   return Response.json(result);
 }
