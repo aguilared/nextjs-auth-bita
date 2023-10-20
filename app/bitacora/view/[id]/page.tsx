@@ -95,6 +95,7 @@ const App = ({ params }) => {
             </ul>
           </div>
         </div>
+        <div className="w-full h-0.5 bg-indigo-500"></div>
       </div>
     </div>
   );
