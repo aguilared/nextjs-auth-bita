@@ -1,6 +1,6 @@
 import axios from "axios";
 // const ENDPOINT = "http://localhost:3000/api/bitacora/";
-const ENDPOINT = process.env.NEXT_PUBLIC_API_URL + "bitacora/idd/";
+const ENDPOINT = process.env.NEXT_PUBLIC_API_URL + "bitacora/";
 
 export default async function getBitacora(bitacoraId) {
   try {

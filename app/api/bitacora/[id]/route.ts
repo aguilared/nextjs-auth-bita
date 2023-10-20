@@ -1,7 +1,10 @@
 import prisma from "@/lib/prisma";
+import { NextRequest, NextResponse } from "next/server";
 
-export default async function handle1(request: Request, response: Response) {
-  const bitacoraId = Request.query.id;
+export async function GET(req: NextRequest, context: any) {
+  console.log("PArams", context.params);
+
+  const bitacoraId = Number(context.params.id);
   console.log("ID", bitacoraId);
   const result = await prisma.bitacora.findUnique({
     where: {
@@ -17,5 +20,5 @@ export default async function handle1(request: Request, response: Response) {
     },
   });
 
-  Response.json(result);
+  return NextResponse.json(result);
 }
