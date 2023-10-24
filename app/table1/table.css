@@ -29,7 +29,7 @@ table tbody tr {
 }
 
 table tbody tr:nth-of-type(even) {
-  background-color: #474747;
+  background-color: #b8b6b6;
 }
 
 table tbody tr:last-of-type {
