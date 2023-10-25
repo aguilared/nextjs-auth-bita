@@ -1,13 +1,33 @@
 "use client";
-import { useEffect, useState } from "react";
-import { datas as defaultData } from "./data";
+import { useEffect, useReducer, useState } from "react";
 import "./table.css";
 
 import {
-  flexRender,
-  getCoreRowModel,
+  Column,
+  Table,
   useReactTable,
+  ColumnFiltersState,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getFacetedRowModel,
+  getFacetedUniqueValues,
+  getFacetedMinMaxValues,
+  getPaginationRowModel,
+  sortingFns,
+  getSortedRowModel,
+  FilterFn,
+  SortingFn,
+  ColumnDef,
+  flexRender,
+  FilterFns,
 } from "@tanstack/react-table";
+
+import {
+  RankingInfo,
+  rankItem,
+  compareItems,
+} from "@tanstack/match-sorter-utils";
+
 import { columns } from "./columns";
 import { FooterCell } from "./FooterCell";
 import { useQuery } from "@tanstack/react-query";
@@ -28,7 +48,48 @@ export type Student = {
   total: string;
 };
 
-export const Table = () => {
+declare module "@tanstack/table-core" {
+  interface FilterFns {
+    fuzzy: FilterFn<unknown>;
+  }
+  interface FilterMeta {
+    itemRank: RankingInfo;
+  }
+}
+
+const fuzzyFilter: FilterFn<any> = (row, columnId, value, addMeta) => {
+  // Rank the item
+  const itemRank = rankItem(row.getValue(columnId), value);
+
+  // Store the itemRank info
+  addMeta({
+    itemRank,
+  });
+
+  // Return if the item should be filtered in/out
+  return itemRank.passed;
+};
+
+const fuzzySort: SortingFn<any> = (rowA, rowB, columnId) => {
+  let dir = 0;
+
+  // Only sort by rank if the column has ranking information
+  if (rowA.columnFiltersMeta[columnId]) {
+    dir = compareItems(
+      rowA.columnFiltersMeta[columnId]?.itemRank!,
+      rowB.columnFiltersMeta[columnId]?.itemRank!
+    );
+  }
+
+  // Provide an alphanumeric fallback for when the item ranks are equal
+  return dir === 0 ? sortingFns.alphanumeric(rowA, rowB, columnId) : dir;
+};
+
+export const App = () => {
+  const rerender = useReducer(() => ({}), {})[1];
+
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [globalFilter, setGlobalFilter] = useState("");
   const router = useRouter();
   const [datafilter, setDatafilter] = useState([]);
 
@@ -52,8 +113,6 @@ export const Table = () => {
     }
   }, [data, status]);
 
-  const [datas, setData] = useState(() => [...defaultData]);
-  const [originalData, setOriginalData] = useState(() => [...defaultData]);
   const [editedRows, setEditedRows] = useState({});
   const [bitacoraSearch, setBitacoraSearch] = useState();
 
@@ -89,68 +148,33 @@ export const Table = () => {
   const table = useReactTable({
     data: datafilter,
     columns,
-    getCoreRowModel: getCoreRowModel(),
-    enableRowSelection: true,
-    meta: {
-      editedRows,
-      setEditedRows,
-      revertData: (rowIndex: number, revert: boolean) => {
-        if (revert) {
-          setData((old) =>
-            old.map((row, index) =>
-              index === rowIndex ? originalData[rowIndex] : row
-            )
-          );
-        } else {
-          setOriginalData((old) =>
-            old.map((row, index) => (index === rowIndex ? data[rowIndex] : row))
-          );
-        }
-      },
-      updateData: (rowIndex: number, columnId: string, value: string) => {
-        setData((old) =>
-          old.map((row, index) => {
-            if (index === rowIndex) {
-              return {
-                ...old[rowIndex],
-                [columnId]: value,
-              };
-            }
-            return row;
-          })
-        );
-      },
-      addRow: () => {
-        const newRow: Student = {
-          studentId: Math.floor(Math.random() * 10000),
-          name: "",
-          dateOfBirth: "",
-          major: "",
-        };
-        const setFunc = (old: Student[]) => [...old, newRow];
-        setData(setFunc);
-        setOriginalData(setFunc);
-      },
-      removeRow: (rowIndex: number) => {
-        const setFilterFunc = (old: Student[]) =>
-          old.filter((_row: Student, index: number) => index !== rowIndex);
-        setData(setFilterFunc);
-        setOriginalData(setFilterFunc);
-      },
-      removeSelectedRows: (selectedRows: number[]) => {
-        const setFilterFunc = (old: Student[]) =>
-          old.filter((_row, index) => !selectedRows.includes(index));
-        setData(setFilterFunc);
-        setOriginalData(setFilterFunc);
-      },
+    filterFns: {
+      fuzzy: fuzzyFilter,
     },
+    state: {
+      columnFilters,
+      globalFilter,
+    },
+    onColumnFiltersChange: setColumnFilters,
+    onGlobalFilterChange: setGlobalFilter,
+    globalFilterFn: fuzzyFilter,
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getFacetedRowModel: getFacetedRowModel(),
+    getFacetedUniqueValues: getFacetedUniqueValues(),
+    getFacetedMinMaxValues: getFacetedMinMaxValues(),
+    debugTable: true,
+    debugHeaders: true,
+    debugColumns: false,
   });
 
   return (
     <>
       {" "}
       <div className="absolute  w-full flex justify-center items-center">
-        <p className="text-xl">List BitaEventss </p>
+        <p className="text-xl">List BitaEvents</p>
       </div>
       <div className="flex-grow text-left px-3 py-1 m-2">
         <form>
@@ -190,13 +214,21 @@ export const Table = () => {
           </div>
         </form>
       </div>
-      <article className="table-container">
+      <div>
+        <DebouncedInput
+          value={globalFilter ?? ""}
+          onChange={(value) => setGlobalFilter(String(value))}
+          className="p-2 font-lg shadow border border-block"
+          placeholder="Search all columns..."
+        />
+      </div>
+      <article>
         {!datafilter ? (
           <div className="fixed top-0 right-0 h-screen w-screen z-50 flex justify-center items-center">
             <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900" />
           </div>
         ) : (
-          <table>
+          <table className="lg:table-fixed">
             <thead>
               {table.getHeaderGroups().map((headerGroup) => (
                 <tr key={headerGroup.id}>
@@ -240,11 +272,141 @@ export const Table = () => {
               </tr>
             </tfoot>
           </table>
-        )}
+        )}{" "}
+        <div className="h-2" />
+        <div className="flex items-center gap-2">
+          <button
+            className="border rounded p-1"
+            onClick={() => table.setPageIndex(0)}
+            disabled={!table.getCanPreviousPage()}
+          >
+            {"<<"}
+          </button>
+          <button
+            className="border rounded p-1"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            {"<"}
+          </button>
+          <button
+            className="border rounded p-1"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            {">"}
+          </button>
+          <button
+            className="border rounded p-1"
+            onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+            disabled={!table.getCanNextPage()}
+          >
+            {">>"}
+          </button>
+          <span className="flex items-center gap-1">
+            <div>Page</div>
+            <strong>
+              {table.getState().pagination.pageIndex + 1} of{" "}
+              {table.getPageCount()}
+            </strong>
+          </span>
+          <span className="flex items-center gap-1">
+            | Go to page:
+            <input
+              type="number"
+              defaultValue={table.getState().pagination.pageIndex + 1}
+              onChange={(e) => {
+                const page = e.target.value ? Number(e.target.value) - 1 : 0;
+                table.setPageIndex(page);
+              }}
+              className="border p-1 rounded w-16"
+            />
+          </span>
+          <select
+            value={table.getState().pagination.pageSize}
+            onChange={(e) => {
+              table.setPageSize(Number(e.target.value));
+            }}
+          >
+            {[10, 20, 30, 40, 50].map((pageSize) => (
+              <option key={pageSize} value={pageSize}>
+                Show {pageSize}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>{table.getPrePaginationRowModel().rows.length} Rows</div>
+        <div>
+          <button onClick={() => rerender()}>Force Rerender</button>
+        </div>
+        <div>
+          <button onClick={() => refreshData()}>Refresh Data</button>
+        </div>
+        <pre>{JSON.stringify(table.getState(), null, 2)}</pre>
         {/* <pre>{JSON.stringify(data, null, "\t")}</pre> */}
       </article>
+      <table className="md:table-fixed">
+        <thead>
+          <tr>
+            <th>Song</th>
+            <th>Artist</th>
+            <th>Year</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>The Sliding Mr. Bones (Next Stop, Pottersville)</td>
+            <td>Malcolm Lockyer</td>
+            <td>1961</td>
+          </tr>
+          <tr>
+            <td>Witchy Woman</td>
+            <td>The Eagles</td>
+            <td>1972</td>
+          </tr>
+          <tr>
+            <td>Shining Star</td>
+            <td>Earth, Wind, and Fire</td>
+            <td>1975</td>
+          </tr>
+        </tbody>
+      </table>
     </>
   );
 };
 
-export default Table;
+// A debounced input react component
+function DebouncedInput({
+  value: initialValue,
+  onChange,
+  debounce = 500,
+  ...props
+}: {
+  value: string | number;
+  onChange: (value: string | number) => void;
+  debounce?: number;
+} & Omit<React.InputHTMLAttributes<HTMLInputElement>, "onChange">) {
+  const [value, setValue] = useState(initialValue);
+
+  useEffect(() => {
+    setValue(initialValue);
+  }, [initialValue]);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      onChange(value);
+    }, debounce);
+
+    return () => clearTimeout(timeout);
+  }, [value]);
+
+  return (
+    <input
+      {...props}
+      value={value}
+      onChange={(e) => setValue(e.target.value)}
+    />
+  );
+}
+
+export default App;

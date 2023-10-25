@@ -1,6 +1,6 @@
 import { createColumnHelper } from "@tanstack/react-table";
 import { TableCell } from "./TableCell";
-import { BitaEvents } from "./data"; //type
+import { BitaEvents } from "./types"; //type
 import { EditCell } from "./EditCell";
 import dayjs from "dayjs";
 
@@ -34,6 +34,13 @@ export const columns = [
   }),
   columnHelper.accessor("event.description", {
     header: "Event",
+    cell: TableCell,
+    meta: {
+      type: "text",
+    },
+  }),
+  columnHelper.accessor("description", {
+    header: "Info",
     cell: TableCell,
     meta: {
       type: "text",
