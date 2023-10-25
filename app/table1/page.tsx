@@ -127,7 +127,9 @@ export const Table = () => {
             {table.getRowModel().rows.map((row) => (
               <tr
                 key={row.id}
-                onClick={() => router.push(`/bitacora/view/${row.original.id}`)}
+                onClick={() =>
+                  router.push(`/bitacora/view/${row.original.bitacora_id}`)
+                }
               >
                 {row.getVisibleCells().map((cell) => (
                   <td key={cell.id}>
