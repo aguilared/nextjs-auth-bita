@@ -9,8 +9,6 @@ import { ModeToggle } from "@/components/mode-toggle";
 import { Toaster } from "react-hot-toast";
 import { Suspense } from "react";
 import AuthStatus from "@/components/auth-status";
-import Navigation from "@/components/Navigation";
-import Container from "@/components/Container";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {

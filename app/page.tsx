@@ -1,10 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
+import Container from "@/components/Container";
+import Navigation from "@/components/Navigation";
+
 export default function Home() {
   return (
-    <div className="prose dark:prose-invert">
+    <div className="container prose dark:prose-invert">
       <Image
         width={512}
         height={512}

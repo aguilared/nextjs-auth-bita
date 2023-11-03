@@ -177,37 +177,50 @@ export const App = () => {
         <div className="w-full flex justify-center items-center">
           <p className="text-xl">List BitaEvents</p>
         </div>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-1">
-          <div className="justify-right items-center">
-            <DebouncedInput
-              value={globalFilter ?? ""}
-              onChange={(value) => setGlobalFilter(String(value))}
-              className="p-2 font-lg shadow border rounded"
-              placeholder="Search all columns..."
-            />
-          </div>
-          <div className="w-full flex justify-left items-left">
-            <button
-              type="submit"
-              onClick={() => abrirModalSearchs()}
-              className="absolute w-10 h-10 rounded-full inline p-2 shadow"
-            >
-              {" "}
-              <svg
-                className="text-gray-100 w-6 h-6 fill-current"
-                viewBox="0 0 56.966 56.966"
-                xmlns="http://www.w3.org/2000/svg"
-                version="1.1"
-                id="Capa_1"
-                x="0px"
-                y="0px"
-                width="512px"
-                height="512px"
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <form>
+            <div>
+              <input
+                className="rounded py-2 px-4"
+                type="text"
+                placeholder="Search"
+                defaultValue=""
+                {...register("search", {
+                  required: "Required",
+                  minLength: 3,
+                  maxLength: 41,
+                })}
+                onChange={handleSearchOnChange}
+              />
+              <button
+                type="submit"
+                onClick={() => abrirModalSearchs()}
+                className="absolute w-10 h-10 rounded-full inline p-2 shadow"
               >
-                <path d="M55.146,51.887L41.588,37.786c3.486-4.144,5.396-9.358,5.396-14.786c0-12.682-10.318-23-23-23s-23,10.318-23,23  s10.318,23,23,23c4.761,0,9.298-1.436,13.177-4.162l13.661,14.208c0.571,0.593,1.339,0.92,2.162,0.92  c0.779,0,1.518-0.297,2.079-0.837C56.255,54.982,56.293,53.08,55.146,51.887z M23.984,6c9.374,0,17,7.626,17,17s-7.626,17-17,17  s-17-7.626-17-17S14.61,6,23.984,6z" />
-              </svg>
-            </button>
-          </div>
+                {" "}
+                <svg
+                  className="text-gray-100 w-6 h-6 fill-current"
+                  viewBox="0 0 56.966 56.966"
+                  xmlns="http://www.w3.org/2000/svg"
+                  version="1.1"
+                  id="Capa_1"
+                  x="0px"
+                  y="0px"
+                  width="512px"
+                  height="512px"
+                >
+                  <path d="M55.146,51.887L41.588,37.786c3.486-4.144,5.396-9.358,5.396-14.786c0-12.682-10.318-23-23-23s-23,10.318-23,23  s10.318,23,23,23c4.761,0,9.298-1.436,13.177-4.162l13.661,14.208c0.571,0.593,1.339,0.92,2.162,0.92  c0.779,0,1.518-0.297,2.079-0.837C56.255,54.982,56.293,53.08,55.146,51.887z M23.984,6c9.374,0,17,7.626,17,17s-7.626,17-17,17  s-17-7.626-17-17S14.61,6,23.984,6z" />
+                </svg>
+              </button>
+            </div>
+          </form>
+
+          <DebouncedInput
+            value={globalFilter ?? ""}
+            onChange={(value) => setGlobalFilter(String(value))}
+            className="p-2 font-lg shadow border border-block"
+            placeholder="Search all columns..."
+          />
         </div>
         <div className="absolute  w-full flex justify-center items-center">
           <article>
@@ -337,33 +350,34 @@ export const App = () => {
             </div>
             <pre>{JSON.stringify(table.getState(), null, 2)}</pre>
             {/* <pre>{JSON.stringify(data, null, "\t")}</pre> */}
-            <table className="md:table-fixed">
-              <thead>
-                <tr>
-                  <th>Song</th>
-                  <th>Artist</th>
-                  <th>Year</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>The Sliding Mr. Bones (Next Stop, Pottersville)</td>
-                  <td>Malcolm Lockyer</td>
-                  <td>1961</td>
-                </tr>
-                <tr>
-                  <td>Witchy Woman</td>
-                  <td>The Eagles</td>
-                  <td>1972</td>
-                </tr>
-                <tr>
-                  <td>Shining Star</td>
-                  <td>Earth, Wind, and Fire</td>
-                  <td>1975</td>
-                </tr>
-              </tbody>
-            </table>
           </article>
+
+          <table className="md:table-fixed">
+            <thead>
+              <tr>
+                <th>Song</th>
+                <th>Artist</th>
+                <th>Year</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>The Sliding Mr. Bones (Next Stop, Pottersville)</td>
+                <td>Malcolm Lockyer</td>
+                <td>1961</td>
+              </tr>
+              <tr>
+                <td>Witchy Woman</td>
+                <td>The Eagles</td>
+                <td>1972</td>
+              </tr>
+              <tr>
+                <td>Shining Star</td>
+                <td>Earth, Wind, and Fire</td>
+                <td>1975</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </Container>
     </>
