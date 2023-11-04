@@ -16,7 +16,7 @@ export async function GET(request: Request, response: Response) {
         select: { id: true, author: true },
       },
     },
-    take: 15,
+    take: 150,
   });
   return Response.json(result);
 }

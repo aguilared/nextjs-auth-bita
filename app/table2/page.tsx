@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useReducer, useState } from "react";
-import "./table.css";
 import Container from "@/components/Container";
 
 import {
@@ -177,8 +176,8 @@ export const App = () => {
         <div className="w-full flex justify-center items-center">
           <p className="text-xl">List BitaEvents</p>
         </div>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-1">
-          <div className="justify-right items-center">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="w-full justify-right items-center">
             <DebouncedInput
               value={globalFilter ?? ""}
               onChange={(value) => setGlobalFilter(String(value))}
@@ -209,161 +208,132 @@ export const App = () => {
             </button>
           </div>
         </div>
-        <div className="absolute  w-full flex justify-center items-center">
-          <article>
-            {!datafilter ? (
-              <div className="fixed top-0 right-0 h-screen w-screen z-50 flex justify-center items-center">
-                <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900" />
-              </div>
-            ) : (
-              <table className="lg:table-fixed">
-                <thead>
-                  {table.getHeaderGroups().map((headerGroup) => (
-                    <tr key={headerGroup.id}>
-                      {headerGroup.headers.map((header) => (
-                        <th key={header.id}>
-                          {header.isPlaceholder
-                            ? null
-                            : flexRender(
-                                header.column.columnDef.header,
-                                header.getContext()
-                              )}
-                        </th>
-                      ))}
-                    </tr>
-                  ))}
-                </thead>
-                <tbody>
-                  {table.getRowModel().rows.map((row) => (
-                    <tr
-                      key={row.id}
-                      onClick={() =>
-                        router.push(`/bitacora/view/${row.original.id}`)
-                      }
-                    >
-                      {row.getVisibleCells().map((cell) => (
-                        <td key={cell.id}>
-                          {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext()
-                          )}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-                <tfoot>
-                  <tr>
-                    <th
-                      colSpan={table.getCenterLeafColumns().length}
-                      align="right"
-                    >
-                      <FooterCell table={table} />
-                    </th>
-                  </tr>
-                </tfoot>
-              </table>
-            )}{" "}
-            <div className="h-2" />
-            <div className="flex items-center gap-2">
-              <button
-                className="border rounded p-1"
-                onClick={() => table.setPageIndex(0)}
-                disabled={!table.getCanPreviousPage()}
-              >
-                {"<<"}
-              </button>
-              <button
-                className="border rounded p-1"
-                onClick={() => table.previousPage()}
-                disabled={!table.getCanPreviousPage()}
-              >
-                {"<"}
-              </button>
-              <button
-                className="border rounded p-1"
-                onClick={() => table.nextPage()}
-                disabled={!table.getCanNextPage()}
-              >
-                {">"}
-              </button>
-              <button
-                className="border rounded p-1"
-                onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-                disabled={!table.getCanNextPage()}
-              >
-                {">>"}
-              </button>
-              <span className="flex items-center gap-1">
-                <div>Page</div>
-                <strong>
-                  {table.getState().pagination.pageIndex + 1} of{" "}
-                  {table.getPageCount()}
-                </strong>
-              </span>
-              <span className="flex items-center gap-1">
-                | Go to page:
-                <input
-                  type="number"
-                  defaultValue={table.getState().pagination.pageIndex + 1}
-                  onChange={(e) => {
-                    const page = e.target.value
-                      ? Number(e.target.value) - 1
-                      : 0;
-                    table.setPageIndex(page);
-                  }}
-                  className="border p-1 rounded w-16"
-                />
-              </span>
-              <select
-                value={table.getState().pagination.pageSize}
-                onChange={(e) => {
-                  table.setPageSize(Number(e.target.value));
-                }}
-              >
-                {[10, 20, 30, 40, 50].map((pageSize) => (
-                  <option key={pageSize} value={pageSize}>
-                    Show {pageSize}
-                  </option>
-                ))}
-              </select>
+        <div className="w-full flex justify-center items-center">
+          {!datafilter ? (
+            <div className="fixed top-0 right-0 h-screen w-screen z-50 flex justify-center items-center">
+              <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900" />
             </div>
-            <div>{table.getPrePaginationRowModel().rows.length} Rows</div>
-            <div>
-              <button onClick={() => rerender()}>Force Rerender</button>
-            </div>
-            <div>
-              <button onClick={() => refreshData()}>Refresh Data</button>
-            </div>
-            <pre>{JSON.stringify(table.getState(), null, 2)}</pre>
-            {/* <pre>{JSON.stringify(data, null, "\t")}</pre> */}
-            <table className="md:table-fixed">
+          ) : (
+            <table className="lg:table-auto shadow-lg border">
               <thead>
-                <tr>
-                  <th>Song</th>
-                  <th>Artist</th>
-                  <th>Year</th>
-                </tr>
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <tr key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => (
+                      <th key={header.id}>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </th>
+                    ))}
+                  </tr>
+                ))}
               </thead>
               <tbody>
-                <tr>
-                  <td>The Sliding Mr. Bones (Next Stop, Pottersville)</td>
-                  <td>Malcolm Lockyer</td>
-                  <td>1961</td>
-                </tr>
-                <tr>
-                  <td>Witchy Woman</td>
-                  <td>The Eagles</td>
-                  <td>1972</td>
-                </tr>
-                <tr>
-                  <td>Shining Star</td>
-                  <td>Earth, Wind, and Fire</td>
-                  <td>1975</td>
-                </tr>
+                {table.getRowModel().rows.map((row) => (
+                  <tr
+                    key={row.id}
+                    onClick={() =>
+                      router.push(`/bitacora/view/${row.original.id}`)
+                    }
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <td key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
               </tbody>
+              <tfoot>
+                <tr>
+                  <th
+                    colSpan={table.getCenterLeafColumns().length}
+                    align="right"
+                  >
+                    <FooterCell table={table} />
+                  </th>
+                </tr>
+              </tfoot>
             </table>
-          </article>
+          )}
+        </div>
+
+        <div className="w-full flex justify-center items-center">
+          <div className="h-2" />
+          <div className="flex items-center gap-2">
+            <button
+              className="border rounded p-1"
+              onClick={() => table.setPageIndex(0)}
+              disabled={!table.getCanPreviousPage()}
+            >
+              {"<<"}
+            </button>
+            <button
+              className="border rounded p-1"
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+            >
+              {"<"}
+            </button>
+            <button
+              className="border rounded p-1"
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+            >
+              {">"}
+            </button>
+            <button
+              className="border rounded p-1"
+              onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+              disabled={!table.getCanNextPage()}
+            >
+              {">>"}
+            </button>
+            <span className="flex items-center gap-1">
+              <div>Page</div>
+              <strong>
+                {table.getState().pagination.pageIndex + 1} of{" "}
+                {table.getPageCount()}
+              </strong>
+            </span>
+            <span className="flex items-center gap-1">
+              | Go to page:
+              <input
+                type="number"
+                defaultValue={table.getState().pagination.pageIndex + 1}
+                onChange={(e) => {
+                  const page = e.target.value ? Number(e.target.value) - 1 : 0;
+                  table.setPageIndex(page);
+                }}
+                className="border p-1 rounded w-16"
+              />
+            </span>
+            <select
+              value={table.getState().pagination.pageSize}
+              onChange={(e) => {
+                table.setPageSize(Number(e.target.value));
+              }}
+            >
+              {[10, 20, 30, 40, 50].map((pageSize) => (
+                <option key={pageSize} value={pageSize}>
+                  Show {pageSize}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>{table.getPrePaginationRowModel().rows.length} Rows</div>
+          <div>
+            <button onClick={() => rerender()}>Force Rerender</button>
+          </div>
+          <div>
+            <button onClick={() => refreshData()}>Refresh Data</button>
+          </div>
         </div>
       </Container>
     </>
