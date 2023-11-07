@@ -2,7 +2,7 @@ import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest, context: any) {
-  console.log("PArams", context.params);
+  console.log("PAramDDDDs", context.params);
 
   const bitacoraId = Number(context.params.id);
   console.log("ID", bitacoraId);

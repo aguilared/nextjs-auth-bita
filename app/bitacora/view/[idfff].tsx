@@ -1,23 +1,56 @@
-"use client";
 import { useCallback, useEffect, useState } from "react";
-import Container from "../../../components/Container";
-import { red } from "@mui/material/colors";
+import PropTypes from "prop-types";
+import { withStyles } from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
+import { red } from "@material-ui/core/colors";
 import getBitacoraEvents from "../../../services/getBitacoraEvents";
 import dayjs from "dayjs";
+import useSWR from "swr";
 import Interweave from "interweave";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import getBitacora from "../../../services/getBitacora";
-import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
 
-export default function BitacoraViewId() {
-  const router = useRouter();
-  const {
-    isReady,
-    query: { id },
-  } = router;
+const fetcher = (url: any) => fetch(url).then((res) => res.json());
+
+const styles = {
+  card: {
+    maxWidth: 645,
+  },
+  root: {
+    maxWidth: 345,
+  },
+  media: {
+    height: 40,
+  },
+
+  avatar: {
+    backgroundColor: red[500],
+  },
+};
+const useStyles = makeStyles((theme) => ({
+  root: {
+    maxWidth: 145,
+  },
+  media: {
+    height: 140,
+  },
+  card: {
+    maxWidth: 150,
+  },
+
+  avatar: {
+    backgroundColor: red[500],
+  },
+}));
+
+const BitacoraViewId = (props: any): JSX.Element => {
+  const { query } = useRouter();
+  console.log("QUERY", query);
+  const { bitacoraSelected } = props;
+  const [loading, setLoading] = useState(false);
+  const [bitaevents, setBitaevents] = useState([]);
   const [totalEvents, setTotalEvents] = useState("");
   const [bitacoraDate, setBitacoraDate] = useState("");
   const [author, setAuthor] = useState("");
@@ -30,46 +63,30 @@ export default function BitacoraViewId() {
     var d = dayjs(date).format("D-M-YY h:mm");
     return d;
   };
-
-  async function get_bita_events() {
-    await getBitacoraEvents(router.query.id).then((resp) => {
-      console.log("RESevents", resp);
-      //setIsLoading(true);
-      //setData1(resp);
-    });
-  }
-
   const getBitacoraNew = useCallback(async () => {
-    await getBitacora(router.query.id).then((resp) => {
-      setTotalEvents(resp._count.bita_events);
+    if (query.id) {
+      //console.log("no hay Idbitacora va a cargar", query.id);
+      // //load idhistoria to global
+    }
+    await getBitacora(query.id).then((resp) => {
       setAuthor(resp.author.name);
       setBitacoraDate(resp.bitacora_date);
+      setTotalEvents(resp._count.bita_events);
     });
-  }, [router]);
+  }, [setAuthor, query]);
 
   useEffect(() => {
-    if (router.isReady) {
-      getBitacoraNew();
-    }
-  }, [getBitacoraNew, router.isReady]);
+    getBitacoraNew();
+  }, [getBitacoraNew]);
 
-  const { status, data, error, isLoading, refetch } = useQuery(
-    ["bitacorasEvens"],
-    async () => {
-      const res = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}bitacora/events/${router.query.id}`
-      );
-      return res.data;
-    },
-    {
-      staleTime: 1000 * 60 * 60 * 24,
-      cacheTime: 1000 * 60 * 60 * 24,
-      enabled: isReady,
-    }
+  const { data, error } = useSWR(
+    `${process.env.NEXT_PUBLIC_API_URL}/bitacora/events/${query.id}`,
+    fetcher
   );
+  console.log("DATA", data);
 
   return (
-    <Container>
+    <div className="flex rounded items-center justify-center flex-wrap bg-gray-100 p-2">
       <div className="bg-white shadow-lg ">
         <div className="flex justify-between p-1">
           <div>
@@ -77,7 +94,7 @@ export default function BitacoraViewId() {
               &nbsp;
             </h3>
             <h3 className="text-2xl tahoma font-extrabold tracking-widest text-gray-500">
-              Bitacora Personal # {router.query.id}, Events:{totalEvents}
+              Bitacora Personal # {query.id}, Events:{totalEvents}
             </h3>
           </div>
           <div className="p-2">
@@ -126,13 +143,7 @@ export default function BitacoraViewId() {
             </ul>
           </div>
         </div>
-
         <div className="w-full h-0.5 bg-indigo-500"></div>
-        {isLoading ? (
-          <div className="fixed top-0 right-0 h-screen w-screen z-50 flex justify-center items-center">
-            <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900" />
-          </div>
-        ) : null}
         <div className="flex justify-center p-4">
           <div className="border-b border-gray-200 shadow">
             {data && data.length > 0 ? (
@@ -166,12 +177,12 @@ export default function BitacoraViewId() {
                         {key + 1}/{bitaevent.id}{" "}
                         <div className="w-1/4 inline-block text-gray-700 text-right px-1 py-1 m-0">
                           <Link
-                            href={`/bitacora/bita_event/${encodeURIComponent(
+                            href={`/bitacora/bita_event/id/${encodeURIComponent(
                               bitaevent.id
                             )}`}
                             target="_blank"
-                            rel="noreferrer"
-                          >
+                            rel="noreferrer">
+
                             <button className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold mr-1 py-1 px-1 rounded-full inline-flex items-center">
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -188,6 +199,7 @@ export default function BitacoraViewId() {
                                 <path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z" />
                               </svg>
                             </button>
+
                           </Link>
                         </div>
                         <div className="w-1/4 inline-block text-gray-700 text-right px-1 py-1 m-0">
@@ -196,8 +208,7 @@ export default function BitacoraViewId() {
                               bitaevent.id
                             )}`}
                             passHref={true}
-                            legacyBehavior
-                          >
+                            legacyBehavior>
                             <button className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold mr-1 py-1 px-1 rounded-full inline-flex items-center">
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -259,6 +270,12 @@ export default function BitacoraViewId() {
           </div>
         </div>
       </div>
-    </Container>
+    </div>
   );
-}
+};
+
+BitacoraViewId.propTypes = {
+  classes: PropTypes.object.isRequired,
+};
+
+export default withStyles(styles)(BitacoraViewId);

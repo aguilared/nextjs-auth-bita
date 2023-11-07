@@ -236,7 +236,7 @@ export const App = () => {
                   <tr
                     key={row.id}
                     onClick={() =>
-                      router.push(`/bitacora/view/${row.original.id}`)
+                      router.push(`/bitacora/bita_event/${row.original.id}`)
                     }
                   >
                     {row.getVisibleCells().map((cell) => (
