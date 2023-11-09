@@ -231,17 +231,16 @@ export const App = () => {
                   </tr>
                 ))}
               </thead>
-              <tbody className="bg-white text-xs">
+              <tbody>
                 {table.getRowModel().rows.map((row) => (
                   <tr
-                    className={"bg-white text-xs"}
                     key={row.id}
                     onClick={() =>
                       router.push(`/bitacora/bita_event/${row.original.id}`)
                     }
                   >
                     {row.getVisibleCells().map((cell) => (
-                      <td key={cell.id} className={"text-gray-800 text-xs"}>
+                      <td key={cell.id}>
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()
