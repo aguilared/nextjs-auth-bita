@@ -46,26 +46,13 @@ const TanStackTable = () => {
     }),
 
     columnHelper.accessor("image", {
-      cell: (info) => (
-        <div>
-          <img
-            height={34}
-            src={`/${info.row.original.id}.jpg`}
-            alt={`/public/${info.row.original.id}.jpg`}
-          />
-        </div>
-      ),
-      header: "Images",
-    }),
-
-    columnHelper.accessor("image", {
       cell: (info) =>
         info.getValue() ? (
           <div>
             <img
               height={34}
               src={`/${info.row.original.id}.jpg`}
-              alt={`/public/${info.row.original.id}.jpg`}
+              alt={`${info.row.original.id}.jpg`}
             />
           </div>
         ) : (
