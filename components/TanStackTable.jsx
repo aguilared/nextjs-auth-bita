@@ -14,6 +14,12 @@ import DebouncedInput from "./DebouncedInput";
 import { SearchIcon } from "../Icons/Icons";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
+import dayjs from "dayjs";
+
+const convertDate1 = (date) => {
+  var d = dayjs(date).format("D-M-YY h:mm");
+  return d;
+};
 
 const TanStackTable = () => {
   const columnHelper = createColumnHelper();
@@ -27,6 +33,10 @@ const TanStackTable = () => {
     columnHelper.accessor("id", {
       cell: (info) => <span>{info.getValue()}</span>,
       header: "ID",
+    }),
+    columnHelper.accessor("event_date", {
+      cell: (info) => <span>{convertDate1(info.getValue())}</span>,
+      header: "Date",
     }),
     columnHelper.accessor("bitacora_id", {
       cell: (info) => <span>{info.getValue()}</span>,
@@ -66,6 +76,11 @@ const TanStackTable = () => {
       header: "Author",
     }),
   ];
+
+  const convertDate1 = (date) => {
+    var d = dayjs(date).format("D-M-YY h:mm");
+    return d;
+  };
 
   const { status, data, error, isLoading, refetch } = useQuery(
     ["bitaEvents"],
