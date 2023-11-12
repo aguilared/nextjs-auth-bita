@@ -105,28 +105,7 @@ const TanStackTable = () => {
   }
 
   return (
-    <div className="relative overflow-x-auto max-w-5xl mx-auto">
-      <div className="bg-white dark:bg-slate-800 rounded-lg px-6 py-8 ring-1 ring-slate-900/5 shadow-xl">
-        <div>
-          <span className="inline-flex items-center justify-center p-2 bg-indigo-500 rounded-md shadow-lg">
-            <svg
-              className="h-6 w-6 text-white"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              aria-hidden="true"
-            ></svg>
-          </span>
-        </div>
-        <h3 className="text-slate-900 dark:text-white mt-5 text-base font-medium tracking-tight">
-          Writes Upside-Down
-        </h3>
-        <p className="text-slate-500 dark:text-slate-400 mt-2 text-sm">
-          The Zero Gravity Pen can be used to write in any orientation,
-          including upside-down. It even works in outer space.
-        </p>
-      </div>
+    <div className="relative overflow-x-auto">
       {isLoading ? (
         <div className="fixed top-0 right-0 h-screen w-screen z-50 flex justify-center items-center">
           <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-300" />
@@ -149,7 +128,7 @@ const TanStackTable = () => {
             <>
               <table className="min-w-full text-center text-sm font-light">
                 {" "}
-                <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                <thead className="border-b bg-neutral-50 font-medium dark:border-neutral-500 dark:text-neutral-800">
                   {" "}
                   {table.getHeaderGroups().map((headerGroup) => (
                     <tr key={headerGroup.id}>
@@ -169,11 +148,7 @@ const TanStackTable = () => {
                     table.getRowModel().rows.map((row, i) => (
                       <tr
                         key={row.id}
-                        className={`${
-                          i % 2 === 0
-                            ? "bg-gray-300 text-slate-900 dark:text-gray-300"
-                            : "bg-gray-500 "
-                        }`}
+                        className="border-b dark:border-neutral-500"
                       >
                         {row.getVisibleCells().map((cell) => (
                           <td key={cell.id} className="px-3.5 py-2">
